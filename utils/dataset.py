@@ -51,6 +51,7 @@ class BasicDataset(Dataset):
         assert len(img_file) == 1, \
             f'Either no image or multiple images found for the ID {idx}: {img_file}'
         mask = Image.open(mask_file[0])
+        # print(np.max(mask), np.unique(mask))
         img = Image.open(img_file[0])
 
         assert img.size == mask.size, \

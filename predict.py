@@ -1,6 +1,8 @@
 import argparse
 import logging
 import os
+import sys
+
 
 import numpy as np
 import torch
@@ -72,6 +74,12 @@ def get_args():
     parser.add_argument('--scale', '-s', type=float,
                         help="Scale factor for the input images",
                         default=0.5)
+    sys.argv[1:] = ['--model', 'checkpoints/CD_epoch5.pth',
+                    '--input', 'data/train_images_256/041869.000003.tif',
+                    '--output', '041869.000003_pre.tif',
+                    '--viz', 'True',
+                    '--no-save', 'False',
+                    '--mask-threshold', '0.5']
 
     return parser.parse_args()
 

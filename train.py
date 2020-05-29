@@ -76,11 +76,12 @@ def train_net(net,
                 true_masks = true_masks.to(device=device, dtype=mask_type)
 
                 masks_pred = net(imgs[:100,:100])
-                print(np.shape(masks_pred))
-                if net.n_classes == 1:
-                    loss = criterion(masks_pred, true_masks)
-                else:
-                    loss = criterion(masks_pred, true_masks)
+                print(np.shape(masks_pred), np.shape(true_masks))
+                # if net.n_classes == 1:
+                #     loss = criterion(masks_pred, true_masks)
+                # else:
+                loss = criterion(masks_pred, true_masks.squeeze(1))
+
                 epoch_loss += loss.item()
                 writer.add_scalar('Loss/train', loss.item(), global_step)
 
@@ -143,7 +144,7 @@ def get_args():
     parser.add_argument('-v', '--validation', dest='val', type=float, default=10.0,
                         help='Percent of the data that is used as validation (0-100)')
 
-    # sys.argv[1:] = ['-e', '100', '-b', '8', '-l', '0.05', '-f', 'True', '-s', '0.5', '-v', '10.0']
+    # sys.argv[1:] = ['-e', '50', '-b', '1', '-l', '0.05', '-f', 'True', '-s', '0.5', '-v', '10.0']
     return parser.parse_args()
 
 

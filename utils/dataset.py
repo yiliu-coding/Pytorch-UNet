@@ -36,8 +36,10 @@ class BasicDataset(Dataset):
 
         # HWC to CHW
         img_trans = img_nd.transpose((2, 0, 1))
-        if img_trans.max() > 1:
+        if img_trans.max() > 1 and img_trans.max()<256:
             img_trans = img_trans / 255
+        elif img_trans.max()>256:
+            img_trans = img_trans / np.max(img_trans)
 
         return img_trans
 

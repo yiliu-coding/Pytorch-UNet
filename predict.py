@@ -30,32 +30,35 @@ def predict_img(net,
     with torch.no_grad():
         output = net(img)
 
-        if net.n_classes > 1:
-            probs = F.softmax(output, dim=1)
-        else:
-            probs = torch.sigmoid(output)
-
+        # if net.n_classes > 1:
+        #     probs = F.softmax(output, dim=1)
+        # else:
+        #     probs = torch.sigmoid(output)
+        probs = torch.sigmoid(output)
         probs = probs.squeeze(0)
 
-        tf = transforms.Compose(
-            [
-                transforms.ToPILImage(),
-                transforms.Resize(full_img.size[1]),
-                transforms.ToTensor()
-            ]
-        )
-
-        probs = tf(probs.cpu())
+        # tf = transforms.Compose(
+        #     [
+        #         transforms.ToPILImage(),
+        #         transforms.Resize(full_img.size[1]),
+        #         transforms.ToTensor()
+        #     ]
+        # )
+        #
+        # probs = tf(probs.cpu())
         full_mask = probs.squeeze().cpu().numpy()
 
-    return full_mask > out_threshold
+        import matplotlib.pyplot as plt
+        plt.figure()
+        plt.imshow(full_mask[2:,:,:].argmax(0)), plt.colorbar()
+        plt.show()
+    return full_mask #> out_threshold
 
 
 def get_args():
     parser = argparse.ArgumentParser(description='Predict masks from input images',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--model', '-m', default='MODEL.pth',
-                        metavar='FILE',
+    parser.add_argument('--model', '-m', default='MODEL.pth', metavar='FILE',
                         help="Specify the file in which the model is stored")
     parser.add_argument('--input', '-i', metavar='INPUT', nargs='+',
                         help='filenames of input images', required=True)
@@ -74,12 +77,19 @@ def get_args():
     parser.add_argument('--scale', '-s', type=float,
                         help="Scale factor for the input images",
                         default=0.5)
-    sys.argv[1:] = ['--model', 'checkpoints/CD_epoch5.pth',
-                    '--input', 'data/train_images_256/041869.000003.tif',
-                    '--output', '041869.000003_pre.tif',
-                    '--viz', 'True',
-                    '--no-save', 'False',
-                    '--mask-threshold', '0.5']
+    sys.argv[1:] = ['-m', 'checkpoints/CP_epoch199.pth',
+                    '-i', 'data/train_images_256/041869.000141.tif',
+                    '-o', '041869.000003_pre.tif',
+                    '-s', '1.0']
+
+    # sys.argv[1:] = ['--model', 'checkpoints/CP_epoch50.pth',
+    #                 '--input', 'data/train_images_256/041869.000003.tif',
+    #                 '--output', '041869.000003_pre.tif',
+    #                 '--viz', 'True',
+    #                 '--no-save', 'False',
+    #                 '--mask-threshold', '0.5']
+    # sys.argv[1:] = ['--model', 'checkpoints/CP_epoch50.pth',
+    #                 '--input', 'data/train_images_256/041869.000003.tif']
 
     return parser.parse_args()
 
@@ -110,7 +120,7 @@ if __name__ == "__main__":
     in_files = args.input
     out_files = get_output_filenames(args)
 
-    net = UNet(n_channels=3, n_classes=1)
+    net = UNet(n_channels=1, n_classes=8)
 
     logging.info("Loading model {}".format(args.model))
 
